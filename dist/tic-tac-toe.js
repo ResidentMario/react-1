@@ -20329,11 +20329,6 @@ class Board extends React.Component {
             null,
             React.createElement(
                 'div',
-                { className: 'status' },
-                status
-            ),
-            React.createElement(
-                'div',
                 { className: 'board-row' },
                 this.renderSquare(0),
                 this.renderSquare(1),
