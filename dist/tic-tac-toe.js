@@ -20327,31 +20327,11 @@ class Board extends React.Component {
         };
     }
 
-    handleClick(i) {
-        const squares = this.state.squares.slice();
-        if (calculateWinner(squares) || squares[i]) {
-            return;
-        }
-        squares[i] = this.state.xIsNext ? 'X' : 'O';
-        this.setState({
-            squares: squares,
-            xIsNext: !this.state.xIsNext
-        });
-    }
-
     renderSquare(i) {
-        return React.createElement(Square, { value: this.state.squares[i], onClick: () => this.handleClick(i) });
+        return React.createElement(Square, { value: this.props.squares[i], onClick: () => this.props.onClick(i) });
     }
 
     render() {
-        const winner = calculateWinner(this.state.squares);
-        let status;
-        if (winner) {
-            status = 'Winner: ' + winner;
-        } else {
-            status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
-        }
-
         return React.createElement(
             'div',
             null,
@@ -20386,19 +20366,64 @@ class Board extends React.Component {
 }
 
 class Game extends React.Component {
+    constructor() {
+        super();
+        this.state = {
+            history: [{
+                squares: Array(9).fill(null)
+            }],
+            xIsNext: true,
+            squares: Array(9).fill(null)
+        };
+    }
+
+    handleClick(i) {
+        const history = this.state.history;
+        const current = history[history.length - 1];
+        const squares = current.squares.slice();
+        if (calculateWinner(squares) || squares[i]) {
+            return;
+        }
+        squares[i] = this.state.xIsNext ? 'X' : 'O';
+        this.setState({
+            history: history.concat([{
+                squares: squares
+            }]),
+            xIsNext: !this.state.xIsNext
+        });
+    }
+
     render() {
+        const history = this.state.history;
+        const current = history[history.length - 1];
+        const winner = calculateWinner(current.squares);
+
+        let status;
+        if (winner) {
+            status = 'Winner: ' + winner;
+        } else {
+            status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+        }
+
         return React.createElement(
             'div',
             { className: 'game' },
             React.createElement(
                 'div',
                 { className: 'game-board' },
-                React.createElement(Board, null)
+                React.createElement(Board, {
+                    squares: current.squares,
+                    onClick: i => this.handleClick(i)
+                })
             ),
             React.createElement(
                 'div',
                 { className: 'game-info' },
-                React.createElement('div', null),
+                React.createElement(
+                    'div',
+                    null,
+                    status
+                ),
                 React.createElement('ol', null)
             )
         );
